@@ -51,7 +51,7 @@
 
 mkDerivation rec {
   pname = "linphone-desktop";
-  version = "4.2.5";
+  version = "4.3.2";
 
   src = fetchFromGitLab {
     domain = "gitlab.linphone.org";
@@ -59,12 +59,13 @@ mkDerivation rec {
     group = "BC";
     repo = pname;
     rev = version;
-    sha256 = "1gq4l9p21rbrcksa7fbkzn9fzbbynqmn6ni6lhnvzk359sb1xvbz";
+    sha256 = "sha256-J5Xt2Rm1d+cpP/WfpGu28K5VVmG4z8u9xa6cBlFTm+g=";
   };
 
   patches = [
     ./do-not-build-linphone-sdk.patch
     ./remove-bc_compute_full_version-usage.patch
+    ./no-store-path-in-autostart.patch
   ];
 
   # See: https://gitlab.linphone.org/BC/public/linphone-desktop/issues/21
@@ -162,18 +163,25 @@ mkDerivation rec {
   # Linphone will randomly crash when it tries to access those files. Then,
   # those just need to be copied manually below.
   installPhase = ''
-    mkdir -p $out/bin
+    mkdir -p $out/bin $out/lib
     cp linphone-app/linphone $out/bin/
+    cp ./OUTPUT/lib/libapp-plugin.so $out/lib/
+    mkdir -p $out/lib/mediastreamer/plugins
+    ln -s ${mediastreamer-openh264}/lib/mediastreamer/plugins/* $out/lib/mediastreamer/plugins/
+    ln -s ${mediastreamer}/lib/mediastreamer/plugins/* $out/lib/mediastreamer/plugins/
     wrapProgram $out/bin/linphone \
       --set MEDIASTREAMER_PLUGINS_DIR \
-            ${mediastreamer-openh264}/lib/mediastreamer/plugins
+            $out/lib/mediastreamer/plugins
     mkdir -p $out/share/applications
     cp linphone-app/linphone.desktop $out/share/applications/
-    cp -r ../linphone-app/assets/icons $out/share/
+    mkdir -p $out/share/icons/hicolor/scalable/apps
+    cp ../linphone-app/assets/images/linphone_logo.svg $out/share/icons/hicolor/scalable/apps/linphone.svg
     mkdir -p $out/share/belr/grammars
     ln -s ${liblinphone}/share/belr/grammars/* $out/share/belr/grammars/
+    ln -s ${belle-sip}/share/belr/grammars/* $out/share/belr/grammars/
     mkdir -p $out/share/linphone
     ln -s ${liblinphone}/share/linphone/* $out/share/linphone/
+    ln -s ${liblinphone}/share/sounds $out/share/sounds
   '';
 
   meta = with lib; {

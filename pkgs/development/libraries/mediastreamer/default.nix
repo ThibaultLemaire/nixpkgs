@@ -25,6 +25,8 @@
 , ortp
 , pkg-config
 , python3
+, qtbase
+, qtdeclarative
 , SDL
 , speex
 , srtp
@@ -33,7 +35,9 @@
 
 stdenv.mkDerivation rec {
   pname = "mediastreamer2";
-  version = "4.5.15";
+  version = "5.0.66";
+
+  dontWrapQtApps = true;
 
   src = fetchFromGitLab {
     domain = "gitlab.linphone.org";
@@ -41,7 +45,7 @@ stdenv.mkDerivation rec {
     group = "BC";
     repo = pname;
     rev = version;
-    sha256 = "sha256-n/EuXEQ9nJKC32PMvWkfP1G+E6uQQuu1/A168n8/cIY=";
+    sha256 = "sha256-rnML/FCKOalbxsXVCZ79nkRb0cG3RbeWi6CWtweBthM=";
   };
 
   patches = [
@@ -59,6 +63,8 @@ stdenv.mkDerivation rec {
     intltool
     pkg-config
     python3
+    qtbase
+    qtdeclarative
   ];
 
   propagatedBuildInputs = [
@@ -89,8 +95,10 @@ stdenv.mkDerivation rec {
 
   strictDeps = true;
 
-  # Do not build static libraries
-  cmakeFlags = [ "-DENABLE_STATIC=NO" ];
+  cmakeFlags = [
+    "-DENABLE_STATIC=NO" # Do not build static libraries
+    "-DENABLE_QT_GL=ON" # Build necessary MSQOGL plugin
+  ];
 
   NIX_CFLAGS_COMPILE = toString [
     "-DGIT_VERSION=\"v${version}\""
