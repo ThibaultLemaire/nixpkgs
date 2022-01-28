@@ -1,16 +1,28 @@
 { bcunit
 , cmake
+, decaf
 , fetchFromGitLab
 , mbedtls
-, lib, stdenv
+, lib
+, stdenv
 }:
 
 stdenv.mkDerivation rec {
   pname = "bctoolbox";
-  version = "5.1.0";
+  version = "5.1.17";
 
-  nativeBuildInputs = [ cmake bcunit ];
-  buildInputs = [ mbedtls ];
+  nativeBuildInputs = [
+    # Made by BC
+    bcunit
+
+    cmake
+  ];
+  buildInputs = [
+    # Vendored by BC
+    decaf
+
+    mbedtls
+  ];
 
   src = fetchFromGitLab {
     domain = "gitlab.linphone.org";
@@ -18,7 +30,7 @@ stdenv.mkDerivation rec {
     group = "BC";
     repo = pname;
     rev = version;
-    sha256 = "sha256-h+JeyZSXCuV6MtOrWxvpg7v3BXks5T70Cy2gP+If0A8=";
+    sha256 = "sha256-p1rpFFMCYG/c35lqQT673j/Uicxe+PLhaktQfM6uF8Y=";
   };
 
   # Do not build static libraries
